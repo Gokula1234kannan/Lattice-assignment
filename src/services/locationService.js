@@ -26,8 +26,24 @@ export const getCityName = async (lat, lon) => {
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`
     );
     const data = await response.json();
-    return data.address.city || data.address.town || data.address.village || 'Unknown Location';
+    const address = data.address || {};
+    
+    // Fallback chain for location name
+    return (
+      address.city || 
+      address.town || 
+      address.village || 
+      address.suburb || 
+      address.hamlet || 
+      address.neighbourhood || 
+      address.municipality || 
+      address.city_district ||
+      address.county ||
+      address.state ||
+      (data.display_name ? data.display_name.split(',')[0] : 'Unknown Location')
+    );
   } catch (error) {
+    console.error('Error fetching city name:', error);
     return 'Localized Data';
   }
 };
